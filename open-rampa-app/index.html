@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Abrir Rampa</title>
+  </head>
+  <body>
+    <script>
+      const params = new URLSearchParams(window.location.search);
+      const screen = (params.get('screen') || '').trim().replace(/^\/+/, '');
+      const query = (params.get('query') || '').trim().replace(/^\?+/, '');
+      const deeplink =
+        screen || query ? `rampaapp://${screen}${query ? `?${query}` : ''}` : 'rampaapp:///';
+
+      window.location.replace(deeplink);
+    </script>
+  </body>
+</html>
