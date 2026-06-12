@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Abrir pago en Rampa</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        --violet: #784ae5;
+        --trustwell: #3300f5;
+        --text: #11181c;
+        --muted: #687076;
+        --bg: #ffffff;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        padding: 24px;
+        font-family:
+          Inter,
+          ui-sans-serif,
+          system-ui,
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          sans-serif;
+        color: var(--text);
+        background:
+          radial-gradient(
+            circle at top,
+            rgba(120, 74, 229, 0.14),
+            transparent 36rem
+          ),
+          var(--bg);
+      }
+
+      main {
+        width: min(100%, 360px);
+        display: grid;
+        justify-items: center;
+        gap: 18px;
+        text-align: center;
+      }
+
+      img {
+        width: 72px;
+        height: 72px;
+        border-radius: 18px;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: 28px;
+        line-height: 1.1;
+      }
+
+      p {
+        margin: 0;
+        color: var(--muted);
+        line-height: 1.5;
+      }
+
+      .spinner {
+        width: 32px;
+        height: 32px;
+        border: 3px solid rgba(120, 74, 229, 0.18);
+        border-top-color: var(--violet);
+        border-radius: 999px;
+        animation: spin 0.8s linear infinite;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <img src="/logo.png" alt="Rampa" />
+      <h1>Abriendo Rampa</h1>
+      <p id="message">Te estamos llevando a la pantalla de envio.</p>
+      <div class="spinner" aria-hidden="true"></div>
+    </main>
+
+    <script>
+      const ANDROID_PACKAGE = "com.anonymous.rampaapp";
+      const PLAY_STORE_URL = `https://play.google.com/store/apps/details?id=${ANDROID_PACKAGE}`;
+      const APP_STORE_URL = "https://apps.apple.com/search?term=Rampa%20Mobile";
+
+      const params = new URLSearchParams(window.location.search);
+      const recipientId = (
+        params.get("recipientId") ||
+        params.get("userId") ||
+        params.get("id") ||
+        ""
+      ).trim();
+      const message = document.getElementById("message");
+      const encodedRecipientId = encodeURIComponent(recipientId);
+      const nativePath = `pay?recipientId=${encodedRecipientId}`;
+      const deeplink = `rampaapp://${nativePath}`;
+      const userAgent = navigator.userAgent || navigator.vendor || "";
+      const isAndroid = /android/i.test(userAgent);
+      const isIOS =
+        /iPad|iPhone|iPod/.test(userAgent) ||
+        (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+
+      let pageHidden = false;
+
+      const markHidden = () => {
+        pageHidden = true;
+      };
+
+      document.addEventListener("visibilitychange", () => {
+        if (document.hidden) markHidden();
+      });
+      window.addEventListener("pagehide", markHidden);
+      window.addEventListener("blur", markHidden);
+
+      const openStoreIfStillHere = (storeUrl) => {
+        window.setTimeout(() => {
+          if (!pageHidden) {
+            window.location.replace(storeUrl);
+          }
+        }, 1400);
+      };
+
+      if (!recipientId) {
+        message.textContent = "Este link no tiene un destinatario valido.";
+      } else if (isAndroid) {
+        const intentUrl =
+          `intent://${nativePath}` +
+          `#Intent;scheme=rampaapp;package=${ANDROID_PACKAGE};` +
+          `S.browser_fallback_url=${encodeURIComponent(PLAY_STORE_URL)};end`;
+
+        window.location.replace(intentUrl);
+      } else if (isIOS) {
+        window.location.replace(deeplink);
+        openStoreIfStillHere(APP_STORE_URL);
+      } else {
+        window.location.replace(deeplink);
+        openStoreIfStillHere(PLAY_STORE_URL);
+      }
+    </script>
+  </body>
+</html>
