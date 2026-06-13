@@ -139,7 +139,7 @@
       } else if (isAndroid) {
         const intentUrl =
           `intent://${nativePath}` +
-          `#Intent;scheme=rampaapp;package=${ANDROID_PACKAGE};` +
+          `#Intent;scheme=rampaapp;action=android.intent.action.VIEW;category=android.intent.category.BROWSABLE;` +
           `S.browser_fallback_url=${encodeURIComponent(PLAY_STORE_URL)};end`;
 
         window.location.replace(intentUrl);
