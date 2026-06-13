@@ -106,7 +106,7 @@
       ).trim();
       const message = document.getElementById("message");
       const encodedRecipientId = encodeURIComponent(recipientId);
-      const nativePath = `pay?recipientId=${encodedRecipientId}`;
+      const nativePath = `send-amount?recipientId=${encodedRecipientId}`;
       const deeplink = `rampaapp://${nativePath}`;
       const userAgent = navigator.userAgent || navigator.vendor || "";
       const isAndroid = /android/i.test(userAgent);
